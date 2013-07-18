@@ -1,20 +1,23 @@
+<%@page import="java.util.Iterator"%>
+<%@page import="java.util.List"%>
+<%@page import="java.lang.management.MemoryManagerMXBean"%>
+<%@page import="cloudvm.management.VirtualMemoryMXBean"%>
 <%@page import="cloudvm.management.VirtualContainerInfoMXBean"%>
 <%@page import="cloudvm.management.JavaContainerMXBean"%>
 <%@page import="cloudvm.management.VirtualMachineMXBean"%>
 <%@page import="cloudvm.management.ManagementFactory"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<% VirtualMachineMXBean virtualMachineMXBean = ManagementFactory.getVirtualMachineMXBean(); %>
+	
 	<!-- start: Meta -->
 	<meta charset="utf-8">
 	<title>Waratek Admin</title>
-	<meta name="description" content="Waratek JVM Administration">
+	<meta name="description" content="ACME Dashboard Bootstrap Admin Template.">
 	<meta name="author" content="Waratek">
-	<meta name="keyword" content="Waratek, JVM, JVC, Admin">
+	<meta name="keyword" content="ACME, Dashboard, Bootstrap, Admin, Template, Theme, Responsive, Fluid, Retina">
 	<!-- end: Meta -->
 	
 	<!-- start: Mobile Specific -->
@@ -53,10 +56,10 @@
 					<span class="icon-bar"></span>
 					<span class="icon-bar"></span>
 				</a>
-				<a class="brand" href="index.html"><span><%= virtualMachineMXBean.getHostname() %></span></a>
+				<a class="brand" href="index.html"><span>Home</span></a>
 								
 				<!-- start: Header Menu -->
-				<!-- start: notifications list
+				<!--  Commented out unused header items
 				<div class="nav-no-collapse header-nav">
 					<ul class="nav pull-right">
 						<li class="dropdown hidden-phone">
@@ -122,8 +125,9 @@
 								</li>	
 							</ul>
 						</li>
-						end: Notifications list -->
-						<!-- start: Tasks  Dropdown
+						-->
+						<!-- start: Notifications Dropdown -->
+						<!-- Commented out unused header items
 						<li class="dropdown hidden-phone">
 							<a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
 								<i class="halflings-icon white tasks"></i>
@@ -182,8 +186,10 @@
 								</li>	
 							</ul>
 						</li>
-						 end: Notifications Dropdown -->
-						<!-- start: Message Dropdown
+						-->
+						<!-- end: Notifications Dropdown -->
+						<!-- start: Message Dropdown -->
+						<!--  Commented out unused header items
 						<li class="dropdown hidden-phone">
 							<a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
 								<i class="halflings-icon white envelope"></i>
@@ -197,7 +203,7 @@
 										<span class="avatar"><img src="img/avatar.jpg" alt="Avatar"></span>
 										<span class="header">
 											<span class="from">
-										    	Łukasz Holeczek
+										    	Åukasz Holeczek
 										     </span>
 											<span class="time">
 										    	6 min
@@ -277,13 +283,17 @@
 								</li>	
 							</ul>
 						</li>
-						 end: Message Dropdown -->
-						<!-- start: User Dropdown
+						-->
+						<!-- end: Message Dropdown -->
+						<!-- Commented out unused header items
 						<li>
 							<a class="btn" href="#">
 								<i class="halflings-icon white wrench"></i>
 							</a>
-						</li> 
+						</li>
+						-->
+						<!-- start: User Dropdown -->
+						<!-- Commented out unused header items
 						<li class="dropdown">
 							<a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
 								<i class="halflings-icon white user"></i> Administrator
@@ -293,17 +303,22 @@
 								<li><a href="#"><i class="halflings-icon white user"></i> Profile</a></li>
 								<li><a href="login.html"><i class="halflings-icon white off"></i> Logout</a></li>
 							</ul>
-						</li> 
+						</li>
+						<!-- end: User Dropdown -->
+						<!-- Commented out unused header items
 					</ul>
-				</div> 
-				end: User Dropdown -->
+				</div>
+				-->
 				<!-- end: Header Menu -->
 				
 			</div>
 		</div>
 	</div>
 	<!-- start: Header -->
-	
+		<% String jvcID = request.getParameter("jvcID");
+		VirtualMachineMXBean virtualMachineMXBean = ManagementFactory.getVirtualMachineMXBean();
+		JavaContainerMXBean javaContainerMXBean = virtualMachineMXBean.getJavaContainer(jvcID);
+		%>
 		<div class="container-fluid">
 		<div class="row-fluid">
 
@@ -312,7 +327,11 @@
 			<div id="sidebar-left" class="span1">
 				<div class="nav-collapse sidebar-nav">
 					<ul class="nav nav-tabs nav-stacked main-menu">
-						<li class="active"><a href="jvclist.jsp"><i class="fa-icon-list"></i><span class="hidden-tablet">JVC List</span></a></li>
+						<li class="active"><a href="jvclist.jsp"><i class="fa-icon-list"></i><span class="hidden-tablet"> JVC List</span></a>
+							<ul style="display: block;">
+								<li class="active"><i class="fa-icon-list"></i><span class="hidden-tablet"><%= javaContainerMXBean.getContainerName() %></span></li>
+							</ul>
+						</li>
 					</ul>
 				</div>
 			</div>
@@ -328,77 +347,403 @@
 			
 			<!-- start: Content -->
 			<div id="content" class="span11">
-			<h1>Java Virtual Containers (JVCs)</h1>
+			<!-- TRIED ATTRIBUTE, SESSION, REQUEST -->
 			
+			<h1><%= javaContainerMXBean.getContainerName() %></h1>
+
+				<div class="row-fluid hideInIE8">
+				
+				<div class="span12">
+					
+					<div class="circleStats">
+						<%
+						// Reserved meory data
+						VirtualMemoryMXBean virtualMemoryMXBean = javaContainerMXBean.getMemoryMXBean();
+						MemoryUsage memoryUsage = virtualMemoryMXBean.getHeapMemoryUsage();
+						
+						// Heap memory data
+						
+						long maxHeapMemory = virtualMemoryMXBean.getMaximumHeapMemorySize();
+						long maxHeapMemoryGB = (maxHeapMemory/1024)/1024;
+						long heapMemoryUsed = virtualMemoryMXBean.getUsedHeapMemory();
+						long heapMemoryUsedGB = (heapMemoryUsed/1024)/1024; 
+						System.out.println("max Heap = " + maxHeapMemory + ", used Heap = " + heapMemoryUsed);
+						%>
+						<div class="span2" onTablet="span4" onDesktop="span2">
+	                    	<div class="circleStatsItemBox">
+								<div class="header">Reserved Mem Usage</div>
+								<span class="percent">percent</span>
+								<div class="circleStat">
+	                        		<input type="text" value="100" class="whiteCircle" />
+								</div>		
+								<div class="footer">
+									<span class="count">
+										<span class="number">256</span>
+										<span class="unit">MB</span>
+									</span>
+									<span class="sep"> / </span>
+									<span class="value">
+										<span class="number">256</span>
+										<span class="unit">MB</span>
+									</span>	
+								</div>
+	                    	</div>
+						</div>
+
+						<div class="span2" onTablet="span4" onDesktop="span2">
+	                    	<div class="circleStatsItemBox">
+								<div class="header">Elastic Mem Usage</div>
+								<span class="percent">percent</span>
+								<div class="circleStat">
+	                        		<input type="text" value="15" class="whiteCircle" />
+								</div>
+								<div class="footer">
+									<span class="count">
+										<span class="number">512</span>
+										<span class="unit">MB</span>
+									</span>
+									<span class="sep"> / </span>
+									<span class="value">
+										<span class="number">2048</span>
+										<span class="unit">MB</span>
+									</span>	
+								</div>
+	                    	</div>
+						</div>
+
+						<div class="span2" onTablet="span4" onDesktop="span2">
+	                    	<div class="circleStatsItemBox">
+								<div class="header">Heap Memory Usage</div>
+								<span class="percent">percent</span>
+	                        	<div class="circleStat">
+	                        		<% long heapMemoryPerc = maxHeapMemory==0.0f?0:(heapMemoryUsed/maxHeapMemory)*100; %>
+	                        		<input type="text" value="<%= heapMemoryPerc %>" class="whiteCircle" />
+								</div>
+								<div class="footer">
+									<span class="count">
+										<span class="number"><%= maxHeapMemory %></span>
+										<span class="unit">b</span>
+									</span>
+									<span class="sep"> / </span>
+									<span class="value">
+										<span class="number"><%= heapMemoryUsed %></span>
+										<span class="unit">b</span>
+									</span>	
+								</div>
+	                    	</div>
+						</div>
+
+						<div class="span2 noMargin" onTablet="span4" onDesktop="span2">
+	                    	<div class="circleStatsItemBox">
+								<div class="header">CPU</div>
+								<span class="percent">percent</span>
+	                        	<div class="circleStat">
+	                        		<input type="text" value="83" class="whiteCircle" />
+								</div>
+								<div class="footer">
+									<span class="count">
+										<span class="number">64</span>
+										<span class="unit">GHz</span>
+									</span>
+									<span class="sep"> / </span>
+									<span class="value">
+										<span class="number">3.2</span>
+										<span class="unit">GHz</span>
+									</span>	
+								</div>
+	                    	</div>
+						</div>
+
+						<div class="span2" onTablet="span4" onDesktop="span2">
+	                    	<div class="circleStatsItemBox">
+								<div class="header">Memory</div>
+								<span class="percent">percent</span>
+	                        	<div class="circleStat">
+	                        		<input type="text" value="100" class="whiteCircle" />
+								</div>
+								<div class="footer">
+									<span class="count">
+										<span class="number">64</span>
+										<span class="unit">GB</span>
+									</span>
+									<span class="sep"> / </span>
+									<span class="value">
+										<span class="number">64</span>
+										<span class="unit">GB</span>
+									</span>	
+								</div>
+	                    	</div>
+						</div>
+
+						<div class="span2" onTablet="span4" onDesktop="span2">
+	                    	<div class="circleStatsItemBox">
+								<div class="header">Memory</div>
+								<span class="percent">percent</span>
+	                        	<div class="circleStat">
+	                        		<input type="text" value="100" class="whiteCircle" />
+								</div>
+								<div class="footer">
+									<span class="count">
+										<span class="number">64</span>
+										<span class="unit">GB</span>
+									</span>
+									<span class="sep"> / </span>
+									<span class="value">
+										<span class="number">64</span>
+										<span class="unit">GB</span>
+									</span>	
+								</div>
+	                    	</div>
+						</div>
+
+	                </div>
+					
+				</div>
+				
+				</div>		
+
+
 			<div class="row-fluid">		
-				<div class="box span12">
+				<div class="box span6">
+					<div class="box-header" data-original-title>
+						<h2><i class="halflings-icon info-sign"></i><span class="break"></span>vcinfo</h2>
+						<div class="box-icon">
+							<!-- <a href="#" class="btn-setting"><i class="halflings-icon wrench"></i></a> -->
+							<a href="#" class="btn-minimize"><i class="halflings-icon chevron-up"></i></a>
+							<a href="#" class="btn-close"><i class="halflings-icon remove"></i></a>
+						</div>
+					</div>
 					<div class="box-content">
-		
-						<table class="table table-striped table-bordered table-condensed bootstrap-datatable datatable">
-						  <thead>
-							  <tr>
-								  <th>JVC ID</th>
-								  <th>Group</th>
-								  <th>Name</th>
-								  <th>Status</th>
-								  <th>Heap Usage</th>
-								  <th>Command</th>
-								  <th>Actions</th>
-							  </tr>
-						  </thead>   
+						<table class="table table-striped table-bordered table-condensed">
 						  <tbody>
-						  <%String containerNames[] =  virtualMachineMXBean.getContainerNames();
-						   	int jvcCount = 0;
-						  	for (; jvcCount < virtualMachineMXBean.getContainerCount(); jvcCount++)
-						   		{
-						  		JavaContainerMXBean javaContainerMXBean = virtualMachineMXBean.getJavaContainer(jvcCount + ""); 
-						  		VirtualContainerInfoMXBean virtualContainerInfoMXBean = javaContainerMXBean.getContainerInfoMXBean(); %>
-							<tr>
-								<td><%= javaContainerMXBean.getContainerId() %></td>
-								<td class="center"><%= virtualContainerInfoMXBean.getElasticGroup() %></td>
-								<td class="center"><%= javaContainerMXBean.getContainerName() %></td>
-								<td class="center">
-									<span class="label label-success"><%= javaContainerMXBean.getStatus() %></span>
-								</td>
-								<td class="center"><span class="sparkLineStats3"></span></td>
-								<td class="center"><%= virtualContainerInfoMXBean.getCommandLine() %></td>
-								<td class="center">
-									<!-- <form action="SUBMIT"> -->
-										<a class="btn" href="jvcinfo.jsp?action=selectJVC&jvcID=<%= javaContainerMXBean.getContainerId() %>">
-											<i class="halflings-icon info-sign"></i>  
-										</a>
-									<!-- </form> -->
-									<a class="btn" href="#">
-										<i class="halflings-icon play"></i>
-									</a>
-									<a class="btn" href="#">
-										<i class="halflings-icon pause"></i>
-									</a>
-									<a class="btn" href="#">
-										<i class="halflings-icon stop"></i>
-									</a>
-									<a class="btn btn-danger" href="#">
-										<i class="halflings-icon trash"></i> 
-									</a>
-								</td>
-							</tr>
-
-						<% 	} %>
-
-
+						    <% VirtualContainerInfoMXBean virtualContainerInfoMXBean = javaContainerMXBean.getContainerInfoMXBean(); %>
+							<tr><td>ID</td><td><%= javaContainerMXBean.getContainerId() %></td></tr>
+							<tr><td>Name</td><td><%= javaContainerMXBean.getContainerName() %></td></tr>
+							<tr><td>Type</td><td><%= javaContainerMXBean.getContainerType() %></td></tr>
+							<tr><td>Command line</td><td><%= virtualContainerInfoMXBean.getCommandLine() %></td></tr>
+							<tr><td>Console log file</td><td><%= javaContainerMXBean.getLogFilePath() %></td></tr>
+							<%String status = javaContainerMXBean.getStatus(); %>
+							<tr><td>Status</td><td><% if (status.equals("Running"))
+															{ %><span class="label label-success">Running</span><% } 
+													 else if (status.equals("Paused"))
+													 	 	{%><span class="label label-warning">Paused</span><% }
+													 else
+														 	{%><span class="label label">Stopped</span><% } %></td></tr>
+							<tr><td>Elastic group</td><td><%= virtualContainerInfoMXBean.getElasticGroup() %></td></tr>
+							<tr><td>Uptime</td><td><%= javaContainerMXBean.getUpTime() %></td></tr>
+							<tr><td>Cpu usage</td><td><%= virtualContainerInfoMXBean.getCpuUsage("0.##E0") %></td></tr>
+							<tr><td>Classloader count</td><td><%= virtualContainerInfoMXBean.getClassLoaderCount() %></td></tr>
+							<tr><td>Total classes loaded</td><td><%= virtualContainerInfoMXBean.getTotalClassesLoaded() %></td></tr>
+							<tr><td>Native library loading is</td><td><% if (javaContainerMXBean.getClassLoadingMXBean().isNativeLibraryEnabled())
+																			{%>Enabled<%}
+																		 else 
+																		 	{%>Disabled<%} %></td></tr>
 						  </tbody>
 					  </table>            
 					</div>
 				</div><!--/span-->
 			
+
+
+				<div class="box span6">
+					<div data-original-title="" class="box-header">
+						<h2><i class="halflings-icon edit"></i><span class="break"></span>CPU and Process Scheduling</h2>
+						<div class="box-icon">
+							<a href="#" class="btn-setting"><i class="halflings-icon wrench"></i></a>
+							<a href="#" class="btn-minimize"><i class="halflings-icon chevron-up"></i></a>
+							<a href="#" class="btn-close"><i class="halflings-icon remove"></i></a>
+						</div>
+					</div>
+					<div class="box-content">
+						<form class="form-vertical">
+							<fieldset>
+
+							<div class="control-group">
+								<label class="control-label" for="selectError">JVC Priority</label>
+								<div class="controls">
+								  <select id="selectError" data-rel="chosen">
+									<option>Priority 10</option>
+									<option>Priority 9</option>
+									<option>Priority 8</option>
+									<option>Priority 7</option>
+									<option>Priority 6</option>
+									<option>Priority 5</option>
+									<option>Priority 4</option>
+									<option>Priority 3</option>
+									<option>Priority 2</option>
+									<option>Priority 1</option>
+								  </select>
+								</div>
+							  </div>
+
+
+		
+							  <div class="control-group">
+							  	<label class="control-label" for="selectError">CPU Affinity</label>
+								<div class="controls">
+								  <label class="checkbox inline">
+									<div class="checker" id="uniform-inlineCheckbox1"><span><input type="checkbox" value="option1" id="inlineCheckbox1"></span></div> CPU 1
+								  </label>
+								  <label class="checkbox inline">
+									<div class="checker" id="uniform-inlineCheckbox2"><span><input type="checkbox" value="option2" id="inlineCheckbox2"></span></div> CPU 2
+								  </label>
+								</div>
+								<div class="controls">
+								  <label class="checkbox inline">
+									<div class="checker" id="uniform-inlineCheckbox1"><span><input type="checkbox" value="option1" id="inlineCheckbox1"></span></div> CPU 3
+								  </label>
+								  <label class="checkbox inline">
+									<div class="checker" id="uniform-inlineCheckbox2"><span><input type="checkbox" value="option2" id="inlineCheckbox2"></span></div> CPU 4
+								  </label>
+								</div>
+								<div class="controls">
+								  <label class="checkbox inline">
+									<div class="checker" id="uniform-inlineCheckbox1"><span><input type="checkbox" value="option1" id="inlineCheckbox1"></span></div> CPU 5
+								  </label>
+								  <label class="checkbox inline">
+									<div class="checker" id="uniform-inlineCheckbox2"><span><input type="checkbox" value="option2" id="inlineCheckbox2"></span></div> CPU 6
+								  </label>
+								</div>	
+								<div class="controls">
+								  <label class="checkbox inline">
+									<div class="checker" id="uniform-inlineCheckbox1"><span><input type="checkbox" value="option1" id="inlineCheckbox1"></span></div> CPU 7
+								  </label>
+								  <label class="checkbox inline">
+									<div class="checker" id="uniform-inlineCheckbox2"><span><input type="checkbox" value="option2" id="inlineCheckbox2"></span></div> CPU 8
+								  </label>
+								</div>	
+
+							  </div>
+
+							  <div class="form-actions">
+								<button class="btn btn-primary" type="submit">Save changes</button>
+								<button class="btn">Cancel</button>
+							  </div>
+							</fieldset>
+						</form>
+					</div>
+				</div>
+
+
+
+
+
+
+
+
+				<div class="box span6">
+					<div data-original-title="" class="box-header">
+						<h2><i class="halflings-icon edit"></i><span class="break"></span>Memory</h2>
+						<div class="box-icon">
+							<a href="#" class="btn-setting"><i class="halflings-icon wrench"></i></a>
+							<a href="#" class="btn-minimize"><i class="halflings-icon chevron-up"></i></a>
+							<a href="#" class="btn-close"><i class="halflings-icon remove"></i></a>
+						</div>
+					</div>
+					<div class="box-content">
+									<div class="sliderOverlay">
+										<div class="slider sliderMin sliderGreen"></div>
+									</div>
+									<div class="field_notice">Max Mem: <span class="must sliderMinLabel">180</span></div>
+
+									<div class="sliderOverlay">
+										<div class="slider sliderMin sliderBlue"></div>
+									</div>
+									<div class="field_notice">Elastic Mem: <span class="must sliderMinLabel">180</span></div>       
+					</div>
+				</div>
+
+
+
 			</div><!--/row-->
+
+
+			<div class="row-fluid">	
+
+				<div class="box span6">
+					<div class="box-header" data-original-title>
+						<h2><i class="halflings-icon list"></i><span class="break"></span>Threads</h2>
+						<div class="box-icon">
+							<a href="#" class="btn-setting"><i class="halflings-icon wrench"></i></a>
+							<a href="#" class="btn-minimize"><i class="halflings-icon chevron-up"></i></a>
+							<a href="#" class="btn-close"><i class="halflings-icon remove"></i></a>
+						</div>
+					</div>
+					<div class="box-content">
+						<table class="table table-striped table-bordered table-condensed">
+						  <tbody>
+							<tr><td>Thread maximum limit</td><td>     	0 (unlimited)</td></tr>
+							<tr><td>Alive thread count</td><td>       	1</td></tr>
+							<tr><td>Alive daemon threads</td><td>     	0</td></tr>
+							<tr><td>Peak thread count</td><td>        	1</td></tr>
+							<tr><td>Total started threads</td><td>    	1</td></tr>
+							<tr><td>Alive thread IDs</td><td>         	24</td></tr>
+						  </tbody>
+					  </table>            
+					</div>
+				</div><!--/span-->
+
+
+
+
+				<div class="box span6">
+					<div class="box-header" data-original-title>
+						<h2><i class="halflings-icon list"></i><span class="break"></span>I/O</h2>
+						<div class="box-icon">
+							<a href="#" class="btn-setting"><i class="halflings-icon wrench"></i></a>
+							<a href="#" class="btn-minimize"><i class="halflings-icon chevron-up"></i></a>
+							<a href="#" class="btn-close"><i class="halflings-icon remove"></i></a>
+						</div>
+					</div>
+					<div class="box-content">
+						<table class="table table-striped table-bordered table-condensed">
+						  <tbody>
+							<tr><td>File descriptor limit</td><td>    	914(OS Limit)</td></tr>
+							<tr><td>File descriptor count</td><td>    	0</td></tr>
+							<tr><td>File bytes written</td><td>       	0</td></tr>
+							<tr><td>File bytes read</td><td>          	0</td></tr>
+							<tr><td>Socket maximum limit</td><td>    	914(OS Limit)</td></tr>
+							<tr><td>Active socket count</td><td>      	0</td></tr>
+							<tr><td>Network bytes written</td><td>    	0</td></tr>
+							<tr><td>Network bytes read</td><td>       	0</td></tr>
+							<tr><td>Virtual root directory</td><td>     	"/"</td></tr>
+						  </tbody>
+					  </table>            
+					</div>
+				</div><!--/span-->
+			
+
+			</div><!--/row-->
+
+
+
+			<div class="row-fluid sortable">
+				<div class="box span12">
+					<div class="box-header">
+						<h2><i class="halflings-icon list-alt"></i><span class="break"></span>Heap Utilization</h2>
+						<div class="box-icon">
+							<a href="#" class="btn-setting"><i class="halflings-icon wrench"></i></a>
+							<a href="#" class="btn-minimize"><i class="halflings-icon chevron-up"></i></a>
+							<a href="#" class="btn-close"><i class="halflings-icon remove"></i></a>
+						</div>
+					</div>
+					<div class="box-content">
+						 <div id="realtimechart" style="height:190px;"></div>
+						 <p>You can update a chart periodically to get a real-time effect by using a timer to insert the new data in the plot and redraw it.</p>
+						 <p>Time between updates: <input id="updateInterval" type="text" value="" style="text-align: right; width:5em"> milliseconds</p>
+					</div>
+				</div>
+			</div><!--/row-->
+
+
+
 
    
 					
 			</div>
 			<!-- end: Content -->
 			
-			<!-- start: Widgets Area
+			<!-- start: Widgets Area -->
 <div id="widgets-area" class="span2 hidden-tablet hidden-phone">
 	
 	<ul class="nav tab-menu nav-tabs" id="myTab">
@@ -481,7 +826,7 @@
                     <a href="#">
 						<span class="status active"></span>
 						<span class="avatar"><img class="img-circle" src="img/avatar.jpg" alt="Avatar"></span>
-						<span class="name">Łukasz Holeczek</span>
+						<span class="name">Åukasz Holeczek</span>
                     </a>
                 </li>
                 <li>
@@ -524,7 +869,7 @@
             	<li>
                     <a href="#">
 						<div class="avatar"><img class="img-circle" src="img/avatar.jpg" alt="Avatar"></div>
-						<span class="name">Łukasz Holeczek</span>
+						<span class="name">Åukasz Holeczek</span>
 						<span class="date">25/6/2013</span>
 						<span class="title">Custom Bootstrap design for new client</span>
                     </a>
@@ -570,15 +915,14 @@
 	</div>
 			
 </div>
+<!-- end: Widgets Area -->
 
-        <a id="widgets-area-button" class="hidden-tablet hidden-phone open"><i class="fa-icon-reorder"></i></a>				
-				</div>
-end: Widgets Area -->
-				<!--/fluid-row-->
+<a id="widgets-area-button" class="hidden-tablet hidden-phone open"><i class="fa-icon-reorder"></i></a>				
+				</div><!--/fluid-row-->
 				
 		<div class="modal hide fade" id="myModal">
 			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal">×</button>
+				<button type="button" class="close" data-dismiss="modal">Ã</button>
 				<h3>Settings</h3>
 			</div>
 			<div class="modal-body">
