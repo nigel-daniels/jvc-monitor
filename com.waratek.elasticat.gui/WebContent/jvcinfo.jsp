@@ -1,3 +1,4 @@
+<%@page import="java.lang.management.MemoryUsage"%>
 <%@page import="java.util.Iterator"%>
 <%@page import="java.util.List"%>
 <%@page import="java.lang.management.MemoryManagerMXBean"%>
